@@ -4,27 +4,28 @@ services:
   app:
     build: .
     ports:
-      - "8000:8000"
-      - "5678:5678"
+      - 8000:8000
+      - 5678:5678
     volumes:
       - .:/code
     command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
     restart: always
     depends_on:
       - ollama
-      - ollama-webui
     networks:
       - ollama-docker
-
+      
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
     volumes:
       - ./ollama/ollama:/root/.ollama
     ports:
-      - "7869:11434"
+      - 7869:11434
     environment:
       - OLLAMA_KEEP_ALIVE=24h
+    tty: true
+    restart: unless-stopped
     networks:
       - ollama-docker
     deploy:
@@ -34,7 +35,6 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
-    restart: unless-stopped
 
   ollama-webui:
     image: ghcr.io/open-webui/open-webui:main
@@ -44,9 +44,9 @@ services:
     depends_on:
       - ollama
     ports:
-      - "8080:8080"
+      - 8080:8080
     environment:
-      - OLLAMA_BASE_URLS=http://ollama:11434  # Acceso directo a 'ollama' en la red interna
+      - OLLAMA_BASE_URLS=181.188.156.195:7869  # Uso de nombre de servicio para acceder a ollama internamente
       - ENV=dev
       - WEBUI_AUTH=False
       - WEBUI_NAME=valiantlynx AI
